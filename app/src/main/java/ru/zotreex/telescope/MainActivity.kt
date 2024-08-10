@@ -20,6 +20,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalTvMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             TelescopeTheme {
                 Surface(
@@ -31,7 +32,9 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        val TdlibParameters = TdApi.TdlibParameters().apply {
+        val TdlibParameters = TdApi.TdlibParameters(
+
+        ).apply {
             useTestDc = true
             useChatInfoDatabase = true
             useMessageDatabase = true
@@ -41,22 +44,24 @@ class MainActivity : ComponentActivity() {
             systemLanguageCode = "ru"
             deviceModel = "Smart Tv"
             applicationVersion = "0.0.1"
-            enableStorageOptimizer = true
             databaseDirectory = baseContext.getFilesDir().absolutePath + "/tdlib/"
             filesDirectory = baseContext.getFilesDir().absolutePath + "/tdlib_files/"
         }
 
-        val client = Client.create({ Log.e("client", it.toString()) }, null, null)
+        val client = Client.create(
+            ResHand(),
+            ExepHand(),
+            ExepHand2()
+        )
+
 
         client.send(TdApi.SetTdlibParameters(TdlibParameters)) {
             Log.e("test", it.toString())
             if (it is TdApi.Ok) {
-                client.send(TdApi.CheckDatabaseEncryptionKey()) {
                     Log.e("test", it.toString())
                     client.send(TdApi.SetAuthenticationPhoneNumber("79823683779", null)) {
                         Log.e("test", it.toString())
                     }
-                }
 
             }
         }
@@ -64,6 +69,25 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+class ExepHand2() : Client.ExceptionHandler {
+    override fun onException(e: Throwable?) {
+        Log.e("exep", e.toString())
+    }
+
+}
+class ExepHand() : Client.ExceptionHandler {
+    override fun onException(e: Throwable?) {
+        Log.e("exep", e.toString())
+    }
+
+}
+
+class ResHand() : Client.ResultHandler {
+    override fun onResult(obj: TdApi.Object?) {
+        Log.e("exep", obj.toString())
+    }
+
+}
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable

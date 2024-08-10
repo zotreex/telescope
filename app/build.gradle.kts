@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.ir.backend.js.compile
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -50,7 +52,7 @@ android {
         }
     }
     sourceSets {
-        getByName("main").jniLibs.srcDir("../tdlib/libs")
+        getByName("main").jniLibs.srcDir(arrayOf("../libtd/src/main/libs", "libs"))
     }
 }
 

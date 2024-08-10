@@ -9,7 +9,7 @@ apply plugin: 'com.android.library'
 android {
 
     compileSdkVersion = 34
-    namespace = "org.drinkless.td.libcore"
+    namespace = "org.drinkless.tdlib"
     sourceSets.main {
         jniLibs.srcDir 'src/main/libs'
         jni.srcDirs = [] //disable automatic ndk-build call
@@ -18,6 +18,10 @@ android {
     defaultConfig {
         minSdkVersion 10
         targetSdkVersion 34
+
+        ndk {
+            abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
+        }
     }
     buildTypes {
         release {
@@ -32,5 +36,5 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.annotation:annotation:1.6.0'
+    implementation 'com.android.support:support-annotations:28.0.0'
 }
