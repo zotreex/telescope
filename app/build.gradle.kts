@@ -52,7 +52,7 @@ android {
         }
     }
     sourceSets {
-        getByName("main").jniLibs.srcDir(arrayOf("../libtd/src/main/libs", "libs"))
+        getByName("main").jniLibs.srcDir(arrayOf("/src/main/libs", "libs"))
     }
 }
 
@@ -66,9 +66,9 @@ dependencies {
     implementation(libs.androidx.tv.material)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.material3.android)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation(project(":libtd"))
 }
