@@ -17,20 +17,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.tv.material3.ButtonGlow
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
+import com.example.compose.TelescopeTheme
 import org.drinkless.tdlib.Client
 import org.drinkless.tdlib.TdApi
+import org.drinkless.tdlib.TdApi.AuthorizationStateReady
 import org.drinkless.tdlib.TdApi.AuthorizationStateWaitPhoneNumber
 import org.drinkless.tdlib.TdApi.AuthorizationStateWaitTdlibParameters
 import ru.zotreex.telescope.Core.TdlibParametersss
 import ru.zotreex.telescope.Core.client
 import ru.zotreex.telescope.experenets.App
-import ru.zotreex.telescope.ui.theme.TelescopeTheme
 
 object Core {
 
@@ -54,6 +53,7 @@ object Core {
         ExepHand2()
     )
 
+
     fun init(baseContext: Context) {
 
     }
@@ -67,7 +67,7 @@ class MainActivity : ComponentActivity() {
 
         val tmp = Core.init(this.baseContext)
         setContent {
-            TelescopeTheme {
+            TelescopeTheme(darkTheme = true) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     shape = RectangleShape
@@ -138,9 +138,31 @@ class ResHand() : Client.ResultHandler {
         val test2 = (obj as? TdApi.UpdateAuthorizationState)?.authorizationState is AuthorizationStateWaitPhoneNumber
         Log.e("exep", obj.toString() + test2.toString())
         if (obj is TdApi.UpdateAuthorizationState) {
-            when (obj.authorizationState) {
+            when (val state = obj.authorizationState) {
                 is AuthorizationStateWaitPhoneNumber -> {
+                    client.send(
+                        TdApi.RequestQrCodeAuthentication()
+                    ) {
 
+                        if (it is TdApi.Ok) {
+                            Log.e("test", "qrcode" + it.toString())
+
+                        }
+                    }
+                }
+
+                is TdApi.AuthorizationStateWaitOtherDeviceConfirmation -> {
+                    val url = state.link
+                }
+
+                is AuthorizationStateReady -> {
+
+                    client.send(TdApi.LogOut()) {
+                        if (it is TdApi.Ok) {
+                            Log.e("test", "logout" + it.toString())
+
+                        }
+                    }
                 }
 
                 is AuthorizationStateWaitTdlibParameters -> {

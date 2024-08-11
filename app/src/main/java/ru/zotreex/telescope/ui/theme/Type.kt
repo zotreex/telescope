@@ -9,7 +9,7 @@ import androidx.tv.material3.Typography
 
 // Set of Material typography styles to start with
 @OptIn(ExperimentalTvMaterial3Api::class)
-val Typography = Typography(
+val TypographyLocal = Typography(
     bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,

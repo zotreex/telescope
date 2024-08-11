@@ -76,6 +76,7 @@ dependencies {
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.core)
     implementation(libs.koin.android)
+    implementation("com.google.zxing:core:3.5.1")
 
 
     androidTestImplementation(platform(libs.androidx.compose.bom))

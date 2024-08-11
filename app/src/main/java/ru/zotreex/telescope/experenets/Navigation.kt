@@ -10,10 +10,11 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import org.koin.core.parameter.parametersOf
+import ru.zotreex.telescope.auth.AuthScreen
 
 @Composable
 fun App() {
-    Navigator(DataScreen())
+    Navigator(AuthScreen())
 }
 
 class DataScreen : Screen {
