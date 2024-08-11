@@ -29,6 +29,7 @@ import org.drinkless.tdlib.TdApi.AuthorizationStateWaitPhoneNumber
 import org.drinkless.tdlib.TdApi.AuthorizationStateWaitTdlibParameters
 import ru.zotreex.telescope.Core.TdlibParametersss
 import ru.zotreex.telescope.Core.client
+import ru.zotreex.telescope.experenets.App
 import ru.zotreex.telescope.ui.theme.TelescopeTheme
 
 object Core {
@@ -71,6 +72,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     shape = RectangleShape
                 ) {
+
+                    App()
+
+                    return@Surface
                     Column {
 
                         Greeting("Android")
