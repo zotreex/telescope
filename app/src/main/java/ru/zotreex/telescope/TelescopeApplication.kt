@@ -3,6 +3,8 @@ package ru.zotreex.telescope
 import android.app.Application
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
+import ru.zotreex.telescope.auth.phone.PhoneAuthModel
+import ru.zotreex.telescope.auth.qr.QrAuthScreenModel
 import ru.zotreex.telescope.experenets.DataScreenModel
 
 class TelescopeApplication : Application() {
@@ -17,4 +19,6 @@ class TelescopeApplication : Application() {
 
 val homeModule = module {
     factory { parameters -> DataScreenModel(id = parameters.get()) }
+    factory { QrAuthScreenModel() }
+    factory { PhoneAuthModel() }
 }

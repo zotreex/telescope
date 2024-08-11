@@ -1,4 +1,4 @@
-package ru.zotreex.telescope.auth
+package ru.zotreex.telescope.auth.qr
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,22 +24,34 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
+import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.compose.TelescopeTheme
+import ru.zotreex.telescope.auth.phone.PhoneAuthScreen
 import ru.zotreex.telescope.core.qr.QrCodeImage
 
-class AuthScreen : Screen {
+@OptIn(ExperimentalVoyagerApi::class)
+class QrAuthScreen : Screen {
     @Composable
     override fun Content() {
-        val navigator = LocalNavigator.currentOrThrow
-        AuthContent()
+
+        val model = koinScreenModel<QrAuthScreenModel>()
+
+        val nav = LocalNavigator.currentOrThrow
+
+        QrContent(
+            onPhoneClick = {
+                nav.push(PhoneAuthScreen())
+            }
+        )
     }
 }
 
 @Composable
-private fun AuthContent() {
+private fun QrContent(onPhoneClick: () -> Unit) {
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -101,7 +113,7 @@ private fun AuthContent() {
 
                         Spacer(modifier = Modifier.height(20.dp))
 
-                        OutlinedButton(onClick = { }) {
+                        OutlinedButton(onClick = { onPhoneClick() }) {
                             Text(text = "ВХОД ПО НОМЕРУ ТЕЛЕФОНА")
                         }
                     }
@@ -132,6 +144,6 @@ private fun StepText(step: String, text: String) {
 @Composable
 private fun PreviewAuthContent() {
     TelescopeTheme {
-        AuthContent()
+        QrContent({})
     }
 }

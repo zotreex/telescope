@@ -10,7 +10,7 @@ tvMaterial = "1.0.0-rc02"
 lifecycleRuntimeKtx = "2.8.4"
 activityCompose = "1.9.1"
 material3Android = "1.2.1"
-voyager = "1.0.0"
+voyager = "1.1.0-beta02"
 koin-bom = "4.0.0-RC1"
 
 [libraries]
