@@ -25,6 +25,7 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.WriterException
 import com.google.zxing.qrcode.QRCodeWriter
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -66,7 +67,7 @@ fun QrCodeImage(
 
 /** Taken from: https://gist.github.com/dev-niiaddy/8f936062291e3d328c7d10bb644273d0 */
 @Composable
-private fun rememberQrBitmap(
+fun rememberQrBitmap(
     content: String, size: Dp,
     backgroundColor: Int,
     dotsColor: Int,
@@ -86,6 +87,7 @@ private fun rememberQrBitmap(
 
             val encodeHints = mutableMapOf<EncodeHintType, Any?>().apply {
                 this[EncodeHintType.MARGIN] = 0
+                this[EncodeHintType.ERROR_CORRECTION] = ErrorCorrectionLevel.H
             }
 
             val bitmapMatrix = try {

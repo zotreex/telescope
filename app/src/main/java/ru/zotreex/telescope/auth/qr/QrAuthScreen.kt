@@ -1,6 +1,8 @@
 package ru.zotreex.telescope.auth.qr
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +16,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,25 +29,24 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
-import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.koinScreenModel
+import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.compose.TelescopeTheme
 import ru.zotreex.telescope.auth.phone.PhoneAuthScreen
 import ru.zotreex.telescope.core.qr.QrCodeImage
 
-@OptIn(ExperimentalVoyagerApi::class)
-class QrAuthScreen : Screen {
+
+class QrAuthScreen() : Screen {
     @Composable
     override fun Content() {
-
-        val model = koinScreenModel<QrAuthScreenModel>()
-
         val nav = LocalNavigator.currentOrThrow
+        val model = nav.koinNavigatorScreenModel<QrAuthScreenModel>()
+        val state = model.state.collectAsState()
 
         QrContent(
+            state = state.value,
             onPhoneClick = {
                 nav.push(PhoneAuthScreen())
             }
@@ -51,7 +55,7 @@ class QrAuthScreen : Screen {
 }
 
 @Composable
-private fun QrContent(onPhoneClick: () -> Unit) {
+private fun QrContent(onPhoneClick: () -> Unit, state: QrAuthScreenState) {
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -78,13 +82,26 @@ private fun QrContent(onPhoneClick: () -> Unit) {
                                 Color.Unspecified,
                             )
                         ) {
-                            QrCodeImage(
-                                content = "https://google.com/",
-                                size = 200.dp,
-                                modifier = Modifier.padding(10.dp),
-                                backgroundColor = MaterialTheme.colorScheme.inverseSurface,
-                                dotsColor = MaterialTheme.colorScheme.surface
-                            )
+                            if (state.qrLoading) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(color = MaterialTheme.colorScheme.inverseSurface),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            } else {
+                                key(state.url) {
+                                    QrCodeImage(
+                                        content = state.url ?: "",
+                                        size = 200.dp,
+                                        modifier = Modifier.padding(10.dp),
+                                        backgroundColor = MaterialTheme.colorScheme.inverseSurface,
+                                        dotsColor = MaterialTheme.colorScheme.surface
+                                    )
+                                }
+                            }
                         }
 
                     }
@@ -144,6 +161,6 @@ private fun StepText(step: String, text: String) {
 @Composable
 private fun PreviewAuthContent() {
     TelescopeTheme {
-        QrContent({})
+        QrContent({}, QrAuthScreenState())
     }
 }

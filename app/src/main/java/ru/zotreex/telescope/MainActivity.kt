@@ -1,71 +1,45 @@
 package ru.zotreex.telescope
 
-import android.content.Context
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.transitions.SlideTransition
 import com.example.compose.TelescopeTheme
-import org.drinkless.tdlib.Client
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import org.drinkless.tdlib.TdApi
-import org.drinkless.tdlib.TdApi.AuthorizationStateReady
-import org.drinkless.tdlib.TdApi.AuthorizationStateWaitPhoneNumber
-import org.drinkless.tdlib.TdApi.AuthorizationStateWaitTdlibParameters
-import ru.zotreex.telescope.Core.TdlibParametersss
-import ru.zotreex.telescope.Core.client
-import ru.zotreex.telescope.experenets.App
-
-object Core {
-
-    val TdlibParametersss = TdApi.SetTdlibParameters().apply {
-        useTestDc = false
-        useChatInfoDatabase = true
-        useMessageDatabase = true
-        useSecretChats = false
-        apiId = 45287
-        apiHash = "656d433030d1900530312bb68e1117e0"
-        systemLanguageCode = "ru"
-        deviceModel = "Smart Tv"
-        applicationVersion = "0.0.1"
-        databaseDirectory = "/data/user/0/ru.zotreex.telescope/files/tdlib/"
-        filesDirectory =  "/data/user/0/ru.zotreex.telescope/files/tdlib_files/"
-    }
-
-    val client = Client.create(
-        ResHand(),
-        ExepHand(),
-        ExepHand2()
-    )
-
-
-    fun init(baseContext: Context) {
-
-    }
-}
+import org.koin.android.ext.android.get
+import ru.zotreex.telescope.auth.code.CodeAuthScreen
+import ru.zotreex.telescope.auth.qr.QrAuthScreen
+import ru.zotreex.telescope.auth.two_factor.TwoFactorScreen
+import ru.zotreex.telescope.core.AuthorizationHandler
+import ru.zotreex.telescope.home.HomeScreen
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalTvMaterial3Api::class)
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val authState: StartRoute = get()
+        val globalRouter: GlobalRouter = get()
 
-        val tmp = Core.init(this.baseContext)
         setContent {
             TelescopeTheme(darkTheme = true) {
                 Surface(
@@ -73,115 +47,113 @@ class MainActivity : ComponentActivity() {
                     shape = RectangleShape
                 ) {
 
-                    App()
+                    val route = authState.route.collectAsState().value
+                    val globalRoute = globalRouter.route.collectAsState().value
 
-                    return@Surface
-                    Column {
-
-                        Greeting("Android")
-                        val textState = remember { mutableStateOf(TextFieldValue()) }
-
-                        OutlinedTextField(
-                            value = textState.value,
-                            onValueChange = {
-                                textState.value = it
-                                if (it.text.length == 5) {
-                                    Core.client.send(TdApi.CheckAuthenticationCode(it.text.toString())) {
-                                        Log.e("test", it.toString())
-                                        if (it is TdApi.Ok) {
-                                            Toast.makeText(
-                                                this@MainActivity,
-                                                "Code OK",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        }
-                                    }
+                    route?.let {
+                        Navigator(it) { navigator ->
+                            globalRoute?.let { command ->
+                                when (command) {
+                                    is GlobalRouter.Commands.Push -> navigator.push(command.screen)
+                                    is GlobalRouter.Commands.Pop -> navigator.pop()
                                 }
                             }
-                        )
-
-                        Button(onClick = {
-                            client.send(TdApi.SetAuthenticationPhoneNumber("+79956790671", null)) {
-                                Log.e("test", "test phone ")
-                                if (it is TdApi.Ok) {
-                                    Log.e("test", "test phone ok")
-                                }}
-                        }){
-                            Text("Click", fontSize = 25.sp)
-                        }
-                    }
-                }
-            }
-
-        }
-    }
-}
-
-class ExepHand2() : Client.ExceptionHandler {
-    override fun onException(e: Throwable?) {
-        Log.e("exep", e.toString())
-    }
-
-}
-
-class ExepHand() : Client.ExceptionHandler {
-    override fun onException(e: Throwable?) {
-        Log.e("exep", e.toString())
-    }
-
-}
-
-class ResHand() : Client.ResultHandler {
-    override fun onResult(obj: TdApi.Object?) {
-
-        val test = obj is TdApi.UpdateAuthorizationState
-        val test2 = (obj as? TdApi.UpdateAuthorizationState)?.authorizationState is AuthorizationStateWaitPhoneNumber
-        Log.e("exep", obj.toString() + test2.toString())
-        if (obj is TdApi.UpdateAuthorizationState) {
-            when (val state = obj.authorizationState) {
-                is AuthorizationStateWaitPhoneNumber -> {
-                    client.send(
-                        TdApi.RequestQrCodeAuthentication()
-                    ) {
-
-                        if (it is TdApi.Ok) {
-                            Log.e("test", "qrcode" + it.toString())
-
-                        }
-                    }
-                }
-
-                is TdApi.AuthorizationStateWaitOtherDeviceConfirmation -> {
-                    val url = state.link
-                }
-
-                is AuthorizationStateReady -> {
-
-                    client.send(TdApi.LogOut()) {
-                        if (it is TdApi.Ok) {
-                            Log.e("test", "logout" + it.toString())
-
-                        }
-                    }
-                }
-
-                is AuthorizationStateWaitTdlibParameters -> {
-                    Log.e("test", "lib send ${TdlibParametersss.apiHash}")
-                    client.send(
-                        TdlibParametersss
-                    ) {
-
-                        if (it is TdApi.Ok) {
-                            Log.e("test", "lib params appluied")
-
+                            SlideTransition(navigator = navigator)
                         }
                     }
                 }
             }
         }
     }
-
 }
+
+class GlobalRouter {
+
+    val route = MutableStateFlow<Commands?>(null)
+
+    fun pop() {
+        route.update {
+            Commands.Pop
+        }
+    }
+
+    fun push(screen: Screen) {
+        route.update {
+            Commands.Push(screen)
+        }
+    }
+
+    sealed class Commands {
+        data object Pop : Commands()
+        data class Push(val screen: Screen) : Commands()
+    }
+}
+
+
+class StartRoute(val authorizationHandler: AuthorizationHandler) {
+
+    val route = MutableStateFlow<Screen?>(null)
+
+
+    init {
+        CoroutineScope(Dispatchers.Main).launch {
+            val state = authorizationHandler.events.first {
+                it is TdApi.AuthorizationStateWaitPhoneNumber || it is TdApi.AuthorizationStateReady || it is TdApi.AuthorizationStateWaitPassword
+            }
+
+            route.update {
+                when (state) {
+                    is TdApi.AuthorizationStateWaitPhoneNumber -> QrAuthScreen()
+                    is TdApi.AuthorizationStateReady -> HomeScreen()
+                    is TdApi.AuthorizationStateWaitPassword -> TwoFactorScreen()
+                    else -> null
+                }
+            }
+        }
+    }
+}
+
+//
+//class ResHand() : Client.ResultHandler {
+//    override fun onResult(obj: TdApi.Object?) {
+//
+//        val test = obj is TdApi.UpdateAuthorizationState
+//        val test2 =
+//            (obj as? TdApi.UpdateAuthorizationState)?.authorizationState is AuthorizationStateWaitPhoneNumber
+//        Log.e("exep", obj.toString() + test2.toString())
+//        if (obj is TdApi.UpdateAuthorizationState) {
+//            when (val state = obj.authorizationState) {
+//                is AuthorizationStateWaitPhoneNumber -> {
+//                    client.send(
+//                        TdApi.RequestQrCodeAuthentication()
+//                    ) {
+//
+//                        if (it is TdApi.Ok) {
+//                            Log.e("test", "qrcode" + it.toString())
+//
+//                        }
+//                    }
+//                }
+//
+//                is TdApi.AuthorizationStateWaitOtherDeviceConfirmation -> {
+//                    val url = state.link
+//                }
+//
+//                is AuthorizationStateReady -> {
+//
+//                    client.send(TdApi.LogOut()) {
+//                        if (it is TdApi.Ok) {
+//                            Log.e("test", "logout" + it.toString())
+//
+//                        }
+//                    }
+//                }
+//
+//            }
+//        }
+//    }
+//
+//}
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable

@@ -1,25 +1,42 @@
 package ru.zotreex.telescope.auth.qr
 
 import cafe.adriel.voyager.core.model.ScreenModel
+import cafe.adriel.voyager.core.model.screenModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
-import ru.zotreex.telescope.auth.phone.PhoneAuthScreen
+import kotlinx.coroutines.launch
+import org.drinkless.tdlib.TdApi
+import ru.zotreex.telescope.GlobalRouter
+import ru.zotreex.telescope.auth.two_factor.TwoFactorScreen
+import ru.zotreex.telescope.core.AuthorizationHandler
+import ru.zotreex.telescope.core.TdClient
 
-class QrAuthScreenModel : ScreenModel {
+class QrAuthScreenModel(
+    authorizationHandler: AuthorizationHandler,
+    val tdClient: TdClient,
+    globalRouter: GlobalRouter
+) :
+    ScreenModel {
 
-    val state = MutableStateFlow<AuthScreenState>(AuthScreenState.Qr(false))
 
-    fun back() {
+    val state = MutableStateFlow<QrAuthScreenState>(QrAuthScreenState())
 
+    init {
+        tdClient.client.send(TdApi.RequestQrCodeAuthentication()) {}
+        screenModelScope.launch {
+            authorizationHandler.events.collect { event ->
+                if (event is TdApi.AuthorizationStateWaitOtherDeviceConfirmation) {
+                    state.update {
+                        QrAuthScreenState(url = event.link, qrLoading = false)
+                    }
+                }
+
+                if (event is TdApi.AuthorizationStateWaitPassword) {
+                    globalRouter.push(TwoFactorScreen())
+                }
+            }
+        }
     }
 }
 
-sealed class AuthScreenState {
-    data class Qr(val qrLoading: Boolean) : AuthScreenState()
-
-    data class Phone(val tmp: String) : AuthScreenState()
-
-    data class Code(val tmp: String) : AuthScreenState()
-
-    data class Password(val tmp: String) : AuthScreenState()
-}
+data class QrAuthScreenState(val url: String? = null, val qrLoading: Boolean = true)

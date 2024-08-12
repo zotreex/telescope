@@ -21,6 +21,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,7 +49,7 @@ class TwoFactorScreen : Screen {
         val nav = LocalNavigator.currentOrThrow
         val model = koinScreenModel<TwoFactorModel>()
 
-        TwoFactorAuthContent(model.passwordField, { nav.pop() }, { nav.push(TwoFactorScreen()) })
+        TwoFactorAuthContent(model.passwordField, model::next, { nav.pop() })
     }
 }
 
@@ -87,14 +88,13 @@ private fun TwoFactorAuthContent(
                     value = textState,
                     onValueChange = { text ->
                         if (text.length <= phoneSize) {
-                            codeField.update { text.filter { it.isDigit() } }
+                            codeField.update { text }
                         }
                     },
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Next
                     ),
-                    visualTransformation = MaskVisualTransformation(NumberMask.PHONE),
+                    visualTransformation = PasswordVisualTransformation(),
                     label = { Text(text = "Пароль") },
                     textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
                     keyboardActions = KeyboardActions(

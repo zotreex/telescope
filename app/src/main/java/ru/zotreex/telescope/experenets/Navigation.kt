@@ -10,41 +10,13 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.transitions.SlideTransition
+import org.koin.android.ext.android.get
 import org.koin.core.parameter.parametersOf
+import ru.zotreex.telescope.StartRoute
 import ru.zotreex.telescope.auth.qr.QrAuthScreen
 
 @OptIn(ExperimentalVoyagerApi::class)
 @Composable
-fun App() {
-    Navigator(QrAuthScreen()) { navigator ->
-        SlideTransition(navigator = navigator)
-    }
-}
+fun App(screen: Screen) {
 
-class DataScreen : Screen {
-    @Composable
-    override fun Content() {
-
-        val navigator = LocalNavigator.currentOrThrow
-        val model =
-            navigator.koinNavigatorScreenModel<DataScreenModel>(parameters = { parametersOf("idds") })
-
-
-        Box {
-            Text(text = model.id)
-        }
-        // on a button click or event call this :
-        //navigator.push(DataDetailScreen())
-    }
-}
-
-class DataDetailScreen : Screen {
-    @Composable
-    override fun Content() {
-        // display data on composable
-        // on a button click or event call this :
-        val navigator = LocalNavigator.currentOrThrow
-
-        //navigator.pop()
-    }
 }
