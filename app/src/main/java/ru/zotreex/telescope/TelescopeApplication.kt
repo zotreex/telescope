@@ -33,9 +33,9 @@ class TelescopeApplication : Application() {
 val homeModule = module {
     factory { parameters -> DataScreenModel(id = parameters.get()) }
     factory { QrAuthScreenModel(get(), get(), get()) }
-    factory { PhoneAuthModel(get()) }
+    factory { PhoneAuthModel(get(), get(), get()) }
     factory { StartRoute(get()) }
-    factory { CodeAuthModel(get(), get()) }
+    factory { CodeAuthModel(get(), get(), get()) }
     factory { TwoFactorModel(get(), get()) }
 
     single { GlobalRouter() }

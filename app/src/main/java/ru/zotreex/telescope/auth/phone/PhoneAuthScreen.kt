@@ -56,7 +56,7 @@ class PhoneAuthScreen : Screen {
         PhoneContent(
             phoneField = model.phoneField,
             onBackClick = { nav.pop() },
-            onNextClick = model::next
+            onNextClick = { model.next() }
         )
     }
 }

@@ -98,7 +98,8 @@ class StartRoute(val authorizationHandler: AuthorizationHandler) {
     init {
         CoroutineScope(Dispatchers.Main).launch {
             val state = authorizationHandler.events.first {
-                it is TdApi.AuthorizationStateWaitPhoneNumber || it is TdApi.AuthorizationStateReady || it is TdApi.AuthorizationStateWaitPassword
+                it is TdApi.AuthorizationStateWaitPhoneNumber || it is TdApi.AuthorizationStateReady || it is TdApi.AuthorizationStateWaitPassword || it is TdApi.AuthorizationStateWaitOtherDeviceConfirmation
+                        || it is TdApi.AuthorizationStateWaitCode
             }
 
             route.update {
@@ -106,6 +107,8 @@ class StartRoute(val authorizationHandler: AuthorizationHandler) {
                     is TdApi.AuthorizationStateWaitPhoneNumber -> QrAuthScreen()
                     is TdApi.AuthorizationStateReady -> HomeScreen()
                     is TdApi.AuthorizationStateWaitPassword -> TwoFactorScreen()
+                    is TdApi.AuthorizationStateWaitOtherDeviceConfirmation -> QrAuthScreen()
+                    is TdApi.AuthorizationStateWaitCode -> CodeAuthScreen("")
                     else -> null
                 }
             }

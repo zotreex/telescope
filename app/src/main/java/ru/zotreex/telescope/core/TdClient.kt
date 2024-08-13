@@ -12,7 +12,7 @@ import org.drinkless.tdlib.TdApi.AuthorizationStateWaitTdlibParameters
 
 class TdClient(
     appContext: Context,
-    resultHandler: TdClientResultHandler,
+    private val resultHandler: TdClientResultHandler,
     private val authorizationHandler: AuthorizationHandler
 ) {
 
@@ -30,11 +30,19 @@ class TdClient(
         filesDirectory = appContext.filesDir.path + "/tdlib_files/"
     }
 
-    val client = Client.create(
+    var client = Client.create(
         resultHandler,
         ExepHand(),
         ExepHand2()
     )
+
+    fun refreshClient() {
+        client = Client.create(
+            resultHandler,
+            ExepHand(),
+            ExepHand2()
+        )
+    }
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
@@ -51,14 +59,14 @@ class TdClient(
 
 class ExepHand2() : Client.ExceptionHandler {
     override fun onException(e: Throwable?) {
-        Log.e("exep", e.toString())
+
     }
 
 }
 
 class ExepHand() : Client.ExceptionHandler {
     override fun onException(e: Throwable?) {
-        Log.e("exep", e.toString())
+
     }
 
 }
@@ -67,6 +75,7 @@ class AuthorizationHandler() {
     val events = MutableSharedFlow<TdApi.AuthorizationState>()
 
     fun newEvent(state: TdApi.AuthorizationState) {
+        Log.e("AuthorizationHandler", state::class.java.name)
         CoroutineScope(Dispatchers.Main).launch {
             events.emit(state)
         }
@@ -76,7 +85,6 @@ class AuthorizationHandler() {
 class TdClientResultHandler(private val authorizationHandler: AuthorizationHandler) :
     Client.ResultHandler {
     override fun onResult(obj: TdApi.Object?) {
-        Log.e("TdApi", obj.toString())
         when (obj) {
             is TdApi.UpdateAuthorizationState -> authorizationHandler.newEvent(obj.authorizationState)
         }

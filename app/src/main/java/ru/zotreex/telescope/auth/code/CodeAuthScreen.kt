@@ -49,7 +49,7 @@ class CodeAuthScreen(val phone: String) : Screen {
         val nav = LocalNavigator.currentOrThrow
         val model = koinScreenModel<CodeAuthModel>()
 
-        CodeAuthContent(phone = phone, model.codeField, { nav.pop() }, { nav.push(TwoFactorScreen()) })
+        CodeAuthContent(phone = phone, model.codeField, { model.onNext() }, { nav.pop() })
     }
 }
 
@@ -88,15 +88,12 @@ private fun CodeAuthContent(
                         .focusRequester(requester),
                     value = textState,
                     onValueChange = { text ->
-                        if (text.length <= phoneSize) {
                             codeField.update { text.filter { it.isDigit() } }
-                        }
                     },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Next
                     ),
-                    visualTransformation = MaskVisualTransformation(NumberMask.PHONE),
                     label = { Text(text = "Код") },
                     textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
                     keyboardActions = KeyboardActions(
