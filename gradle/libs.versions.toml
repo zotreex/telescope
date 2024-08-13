@@ -1,6 +1,6 @@
 [versions]
 agp = "8.5.0"
-composeQrCode = "1.0.1"
+coil = "2.2.2"
 coreSplashscreen = "1.0.1"
 coreVersion = "3.5.1"
 kotlin = "1.9.0"
@@ -17,6 +17,8 @@ koin-bom = "4.0.0-RC1"
 
 [libraries]
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
+coil = { module = "io.coil-kt:coil", version.ref = "coil" }
+coil-bom = { module = "io.coil-kt:coil-bom" }
 voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyager" }
 voyager-screenModel = { module = "cafe.adriel.voyager:voyager-screenmodel", version.ref = "voyager" }
 voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyager" }

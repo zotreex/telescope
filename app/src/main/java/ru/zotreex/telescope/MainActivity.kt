@@ -13,7 +13,9 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.navigator.NavigatorDisposeBehavior
 import cafe.adriel.voyager.transitions.SlideTransition
 import com.example.compose.TelescopeTheme
 import kotlinx.coroutines.CoroutineScope
@@ -52,13 +54,13 @@ class MainActivity : ComponentActivity() {
 
                     route?.let {
                         Navigator(it) { navigator ->
+                            SlideTransition(navigator)
                             globalRoute?.let { command ->
                                 when (command) {
                                     is GlobalRouter.Commands.Push -> navigator.push(command.screen)
                                     is GlobalRouter.Commands.Pop -> navigator.pop()
                                 }
                             }
-                            SlideTransition(navigator = navigator)
                         }
                     }
                 }

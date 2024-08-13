@@ -1,6 +1,7 @@
 package ru.zotreex.telescope
 
 import android.app.Application
+import org.drinkless.tdlib.TdApi.Message
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -15,6 +16,8 @@ import ru.zotreex.telescope.core.AuthorizationHandler
 import ru.zotreex.telescope.core.TdClient
 import ru.zotreex.telescope.core.TdClientResultHandler
 import ru.zotreex.telescope.experenets.DataScreenModel
+import ru.zotreex.telescope.home.HomeScreenModel
+import ru.zotreex.telescope.player.PlayerScreenModel
 
 class TelescopeApplication : Application() {
     override fun onCreate() {
@@ -37,6 +40,8 @@ val homeModule = module {
     factory { StartRoute(get()) }
     factory { CodeAuthModel(get(), get(), get()) }
     factory { TwoFactorModel(get(), get()) }
+    factory { HomeScreenModel(get()) }
+    factory { PlayerScreenModel(get(), get()) }
 
     single { GlobalRouter() }
     single { AuthorizationHandler() }
