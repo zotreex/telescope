@@ -29,28 +29,22 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
-import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.koinScreenModel
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.compose.TelescopeTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import org.koin.androidx.compose.koinViewModel
 import ru.zotreex.telescope.auth.phone.fillColumns
-import ru.zotreex.telescope.auth.two_factor.TwoFactorScreen
-import ru.zotreex.telescope.core.fields.MaskVisualTransformation
-import ru.zotreex.telescope.core.fields.NumberMask
-import ru.zotreex.telescope.core.fields.NumberMask.phoneSize
 
-class CodeAuthScreen(val phone: String) : Screen {
-    @Composable
-    override fun Content() {
+@Composable
+fun CodeAuthScreen(phone: String) {
 
-        val nav = LocalNavigator.currentOrThrow
-        val model = koinScreenModel<CodeAuthModel>()
+    val model: CodeAuthModel = koinViewModel()
 
-        CodeAuthContent(phone = phone, model.codeField, { model.onNext() }, { nav.pop() })
-    }
+    CodeAuthContent(
+        phone = phone,
+        model.codeField,
+        { model.onNext() },
+        { model.globalRouter.pop() })
 }
 
 @Composable
@@ -88,7 +82,7 @@ private fun CodeAuthContent(
                         .focusRequester(requester),
                     value = textState,
                     onValueChange = { text ->
-                            codeField.update { text.filter { it.isDigit() } }
+                        codeField.update { text.filter { it.isDigit() } }
                     },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,

@@ -14,40 +14,29 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Badge
-import androidx.compose.material3.ButtonDefaults.MinHeight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Button
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
-import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.koinNavigatorScreenModel
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.compose.TelescopeTheme
+import org.koin.androidx.compose.koinViewModel
 import ru.zotreex.telescope.core.qr.QrCodeImage
 
+@Composable
+fun QrAuthScreen() {
 
-class QrAuthScreen() : Screen {
-    @Composable
-    override fun Content() {
-        val nav = LocalNavigator.currentOrThrow
-        val model = nav.koinNavigatorScreenModel<QrAuthScreenModel>()
+        val model : QrAuthScreenModel = koinViewModel()
         val state = model.state.collectAsState()
 
         QrContent(
@@ -56,7 +45,6 @@ class QrAuthScreen() : Screen {
                 model.onPhoneClick()
             }
         )
-    }
 }
 
 @Composable

@@ -1,7 +1,6 @@
 package ru.zotreex.telescope.core
 
 import android.content.Context
-import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -22,7 +21,7 @@ class TdClient(
         useMessageDatabase = true
         useSecretChats = false
         apiId = 45287
-        apiHash = "656d433030d1900530312bb68e1117e0"
+        apiHash = ""
         systemLanguageCode = "ru"
         deviceModel = "Smart Tv"
         applicationVersion = "0.0.1"
@@ -75,7 +74,6 @@ class AuthorizationHandler() {
     val events = MutableSharedFlow<TdApi.AuthorizationState>()
 
     fun newEvent(state: TdApi.AuthorizationState) {
-        Log.e("AuthorizationHandler", state::class.java.name)
         CoroutineScope(Dispatchers.Main).launch {
             events.emit(state)
         }

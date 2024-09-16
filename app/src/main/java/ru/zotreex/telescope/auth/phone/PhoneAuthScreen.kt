@@ -32,33 +32,24 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
-import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
-import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.koinScreenModel
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.compose.TelescopeTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
-import ru.zotreex.telescope.auth.code.CodeAuthScreen
+import org.koin.androidx.compose.koinViewModel
 import ru.zotreex.telescope.core.fields.MaskVisualTransformation
 import ru.zotreex.telescope.core.fields.NumberMask
 import ru.zotreex.telescope.core.fields.NumberMask.phoneSize
 
-@OptIn(ExperimentalVoyagerApi::class)
-class PhoneAuthScreen : Screen {
-    @Composable
-    override fun Content() {
+@Composable
+fun PhoneAuthScreen() {
 
-        val nav = LocalNavigator.currentOrThrow
-        val model = koinScreenModel<PhoneAuthModel>()
+    val model: PhoneAuthModel = koinViewModel()
 
-        PhoneContent(
-            phoneField = model.phoneField,
-            onBackClick = { nav.pop() },
-            onNextClick = { model.next() }
-        )
-    }
+    PhoneContent(
+        phoneField = model.phoneField,
+        onBackClick = { model.globalRouter.pop() },
+        onNextClick = { model.next() }
+    )
 }
 
 

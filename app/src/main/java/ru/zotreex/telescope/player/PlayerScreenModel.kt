@@ -1,54 +1,62 @@
 package ru.zotreex.telescope.player
 
 import android.app.Application
-import android.content.Context
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
-import cafe.adriel.voyager.core.model.ScreenModel
-import cafe.adriel.voyager.core.model.screenModelScope
+import androidx.media3.exoplayer.util.EventLogger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.drinkless.tdlib.TdApi
-import org.drinkless.tdlib.TdApi.Message
 import ru.zotreex.telescope.core.TdClient
 import kotlin.coroutines.resume
 
-class PlayerScreenModel(private val tdClient: TdClient, app: Application) : ScreenModel {
+class PlayerScreenModel(private val tdClient: TdClient,private val app: Application) : ViewModel() {
 
-    val media = MutableStateFlow<String?>(null)
+    val media = MutableStateFlow<ExoPlayer?>(null)
     var flag: Boolean = false
 
-    val player = ExoPlayer.Builder(app)
-        .build()
-
-    init {
-
-        player.playWhenReady = true
-        player.prepare()
+    override fun onCleared() {
+        super.onCleared()
+        media.value?.release()
+        media.value = null
     }
 
-    fun load(message: Message) {
+    fun load(chatId: Long, messageId: Long) {
         if (flag) return
         flag = true
-        screenModelScope.launch {
-            (message.content as? TdApi.MessageVideo)?.let { content ->
+
+        viewModelScope.launch {
+            val message = getMessage(chatId, messageId)
+            (message?.content as? TdApi.MessageVideo)?.let { content ->
 
                 val uri = handleVideo(content)
-                uri?.let { player.setMediaItem(MediaItem.fromUri(uri)) }
+                val player = ExoPlayer.Builder(app).build().apply {
+                    prepare()
+                    playWhenReady = true
+                    addAnalyticsListener(EventLogger())
+                }
+                player.setMediaItem(MediaItem.fromUri(uri!!))
 
                 media.update {
-                    uri
+                    player
                 }
             }
         }
     }
 
-    override fun onDispose() {
-        super.onDispose()
-        player.release()
-    }
+    suspend fun getMessage(chatId: Long, messageId: Long) =
+        suspendCancellableCoroutine { continuation ->
+            tdClient.client.send(TdApi.GetMessage(chatId, messageId)) {
+                if (it is TdApi.Message) {
+                    continuation.resume(it)
+                } else
+                    continuation.resume(null)
+            }
+        }
 
     private suspend fun handleVideo(content: TdApi.MessageVideo): String? {
         val file = content.video.video
@@ -61,13 +69,13 @@ class PlayerScreenModel(private val tdClient: TdClient, app: Application) : Scre
         }
 
         return suspendCancellableCoroutine { continuation ->
-            tdClient.client.send(TdApi.DownloadFile(file.id, 1, 0, 0, true), {
+            tdClient.client.send(TdApi.DownloadFile(file.id, 1, 0, 0, true)
+            ) {
                 if (it is TdApi.File) {
                     continuation.resume(it.local.path)
                 } else
                     continuation.resume(null)
             }
-            )
         }
     }
 }

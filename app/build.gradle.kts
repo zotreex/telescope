@@ -11,10 +11,10 @@ android {
 
     defaultConfig {
         applicationId = "ru.zotreex.telescope"
-        minSdk = 28
+        minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -68,14 +68,12 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.material3.android)
 
-    implementation(libs.voyager.navigator)
-    implementation(libs.voyager.screenModel)
-    implementation(libs.voyager.transitions)
-    implementation(libs.voyager.koin)
+    implementation("androidx.navigation:navigation-compose:2.7.3")
 
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.core)
     implementation(libs.koin.android)
+    implementation(libs.koin.compose)
 
     implementation(libs.zxing.core)
     implementation(libs.androidx.core.splashscreen)
@@ -84,7 +82,11 @@ dependencies {
 
     implementation("androidx.media3:media3-exoplayer:1.4.0")
     implementation("androidx.media3:media3-ui:1.4.0")
+    implementation("androidx.media3:media3-transformer:1.4.0")
+    implementation("com.github.fengdai.compose:media:0.4.0")
     implementation("androidx.media3:media3-exoplayer-dash:1.4.0")
+    implementation("androidx.media3:media3-common:1.4.0")
+    implementation("com.googlecode.mp4parser:isoparser:1.0.6")
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)

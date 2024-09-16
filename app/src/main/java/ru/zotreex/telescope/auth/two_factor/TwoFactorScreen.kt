@@ -20,7 +20,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,27 +29,19 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
-import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.koinScreenModel
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.compose.TelescopeTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import org.koin.androidx.compose.koinViewModel
 import ru.zotreex.telescope.auth.phone.fillColumns
-import ru.zotreex.telescope.core.fields.MaskVisualTransformation
-import ru.zotreex.telescope.core.fields.NumberMask
 import ru.zotreex.telescope.core.fields.NumberMask.phoneSize
 
-class TwoFactorScreen : Screen {
-    @Composable
-    override fun Content() {
+@Composable
+fun TwoFactorScreen() {
 
-        val nav = LocalNavigator.currentOrThrow
-        val model = koinScreenModel<TwoFactorModel>()
+    val model: TwoFactorModel = koinViewModel()
 
-        TwoFactorAuthContent(model.passwordField, model::next, { nav.pop() })
-    }
+    TwoFactorAuthContent(model.passwordField, model::next, { model.globalRouter.pop() })
 }
 
 @Composable
